@@ -4,7 +4,7 @@
 #include <sys/wait.h>
 
 int main(int argc, char *argv[]) {
-	if(argc == 2) {
+	if(argc == 3) {
 		FILE *fd = fopen(argv[1], "r");
 		if(!fd) {
 			fprintf(stderr, "This file doesn't exist\n");
@@ -25,7 +25,11 @@ int main(int argc, char *argv[]) {
 					dup2(pipefd[1], STDERR_FILENO);
 					close(pipefd[1]);
 
-					execlp("yt-dl", "yt-dl", "-t", "mp3", "--progress", "--cookies-from-browser", "brave", "--remote-components", "ejs:github", tok, NULL);
+					if(strcmp(argv[2], "-mp3") == 0) {
+						execlp("yt-dl", "yt-dl", "-t", "mp3", "--progress", "--cookies-from-browser", "brave", "--remote-components", "ejs:github", tok, NULL);
+					} else if(strcmp(argv[2], "-mp4") == 0) {
+						execlp("yt-dl", "yt-dl", "--merge-output-format", "mp4", "--progress", "--cookies-from-browser", "brave", "--remote-components", "ejs:github", tok, NULL);
+					}
 					perror("execlp failed!\n");
 					_exit(1);
 				} else {
@@ -46,6 +50,9 @@ int main(int argc, char *argv[]) {
 			}
 		}
 		fclose(fd);
+	} else {
+		printf("Usage: CMD file -format\n");
+		printf("Formats: mp3, mp4\n");
 	}
 	return 0;
 }
